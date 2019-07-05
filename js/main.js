@@ -1,47 +1,54 @@
+//Global vars
 const moviesContainer = document.getElementById('movies');
 const searchForm = document.getElementById('searchForm');
 const searchInput = document.getElementById('searchText');
-let errMsg = '';
 
+//Listen for form submit
 searchForm.addEventListener('submit', e => {
+  //get the input
   let search = searchInput.value;
+  //make sure the search is valid
   if (search != '') {
+    //get movies based from search
     getMovies(search);
   } else {
-    errMsg = `<div class="alert alert-warning" style="width: 100%">
-      <h4 class="alert-heading">Warning!</h4>
-      <p class="mb-0">please enter something</p>
-    </div>`;
-    moviesContainer.innerHTML = errMsg;
+    //display err
+    alert('Warning', 'Please enter something', 'warning');
   }
   e.preventDefault();
 });
 
-function getMovies(searchText) {
+const getMovies = searchText => {
+  //Get movies base from search
   axios
     .get(`http://www.omdbapi.com/?i=tt3896198&apikey=f5c1c3a7&s=${searchText}`)
     .then(res => {
+      //set movies (array of objects)
       let movies = res.data.Search;
-      //console.log(movies);
+      //make sure something was returned
       if (movies == undefined) {
-        errMsg = `<div class="alert alert-warning" style="width: 100%">
-        <h4 class="alert-heading">Warning!</h4>
-        <p class="mb-0">We could not find a movie with the name '${searchText}'</p>
-      </div>`;
-        moviesContainer.innerHTML = errMsg;
+        //tell the user no movies were found
+        alert(
+          'No movies found',
+          `We could not find a movie with the name '${searchText}'`,
+          'danger'
+        );
       } else {
-        displayMovies(movies, searchText);
+        //display the movies
+        displayMovies(movies);
       }
     })
     .catch(err => {
+      //if promise fails, alert with the err msg
       alert(err);
     });
-}
+};
 
-function displayMovies(movies) {
+const displayMovies = movies => {
+  //set output var
   let html = '';
+  //add to output var for each movie in the array
   movies.forEach(movie => {
-    //console.log(movie);
     html += `<div class="col-lg-4 col-sm-12 mb-3">
         <div class="card">
           <h3 class="card-header">${movie.Title}</h3>
@@ -55,8 +62,25 @@ function displayMovies(movies) {
           }/" class="card-link btn btn-primary">View More</a>
         </div>
         </div>`;
-    console.log(movie);
-    console.log(html);
   });
+  //add to the DOM
   moviesContainer.innerHTML = html;
-}
+};
+
+const alert = (title, msg, type) => {
+  //alert types
+  /**
+   * warning
+   * danger
+   * success
+   */
+
+  //set the alert
+  let alertMsg = `<div class="alert alert-${type}" style="width: 100%">
+  <h4 class="alert-heading">${title}</h4>
+  <p class="mb-0">${msg}</p>
+</div>`;
+
+  //add alert to the DOM
+  moviesContainer.innerHTML = alertMsg;
+};
